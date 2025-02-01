@@ -1,6 +1,6 @@
 Hello
 This is my first gui project.
-I use C++ with sfml on VS code 2022(the purple one).
+I use C++ with sfml on VS 2022.
 Since I am mostly a beginner my code can be inefficient and repetitive,but I believe its good enough.
 This project takes input of resistances and a voltage from user and returns the current,potential drop and power consumed
 through each resistor,each group of parallel combination and the entire combination.
