@@ -187,7 +187,7 @@ void Nodes::initFinalthreads()
 
 void Nodes::initFonts()
 {
-        if (this->font.loadFromFile("fonts/Raleway-Bold.ttf"))
+        if (!this->font.loadFromFile("fonts/Raleway-Bold.ttf"))
         {
             std::cout << "ERROR:GAME::::INITFONTS::Failed to load font" << "\n";
         }
