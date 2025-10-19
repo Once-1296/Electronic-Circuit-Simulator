@@ -1,5 +1,5 @@
 # Electronic Circuit Simulator
-
+![Circuit Simulator Screenshot](assets/img1.png)
 Welcome to the documentation for the **Electronic Circuit Simulator**, a simple SFML-based project that visualizes the behavior of basic electronic and physics concepts such as resistance, current, and power using real-time rendering.
 
 ---
@@ -56,9 +56,9 @@ The project demonstrates how basic electrical circuits — especially **series-p
 
 ## 🧪 Demo Implementation
 
-Here’s a snapshot of the running simulator:
+Here’s a video of the running simulator:
 
-![Circuit Simulator Screenshot](assets/img1.png)
+
 
 🎥 [Watch the Demo Video](assets/vid1.mp4)
 
@@ -68,9 +68,9 @@ This demo shows the real-time rendering of resistor nodes and circuit data as en
 
 ## 🚀 Running the Executable
 
-1. Download the **ZIP** file from the project’s release page.  
+1. Download the **ZIP** file (same name as repository) from the project’s main directory.  
 2. Extract it into any folder.  
-3. Run the file:
+3. Run the exe file:
 
 *(Currently supports Windows only.)*
 
