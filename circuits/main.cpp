@@ -1,147 +1,148 @@
-#include"resources.h"
-int main()
-{
-    system("cls");
-    int con;
-    float netres = 0.0;
-    vector<Data2> resinser;
-    cout << "Enter total no of resistors in series:\t";
-    cin >> con;
-    ofstream file("temp.txt");
-    file << con << endl;
-    file.close();
-    for (int i = 0; i < con; i++)
-    {
-        resources obj;
-        netres += obj.calcnetres(obj.no);
-    }
-    cout << "\nTotal resistance is:\t" << netres;
-    fstream file1("temp.txt", ios::in);
-    string word, line;
-    getline(file1, line);
-    const int con1 = stoi(line);
-    int con2;
-    vector<int> parcount;
-    for (int i = 0; i < con1; i++)
-    {
-        Data2 data;
-        con2 = 0;
-        getline(file1, line);
-        stringstream obj2(line);
-        while (getline(obj2, word, ','))
-        {
+﻿#include "resources.h"
 
-            data.resinpar2.push_back(stof(word));
-            con2++;
-        }
-        parcount.push_back(con2);
-        resinser.push_back(data);
+int main() {
+    system("cls");
+    int seriesCount;
+    float totalResistance = 0.0f;
+    vector<Data2> resistorGroups;
+
+    cout << "Enter total number of resistor groups in series:\t";
+    cin >> seriesCount;
+
+    ofstream tempFile("temp.txt");
+    tempFile << seriesCount << endl;
+    tempFile.close();
+
+    // Gather data for each series group
+    for (int i = 0; i < seriesCount; i++) {
+        resources resGroup;
+        totalResistance += resGroup.calcnetres(resGroup.no);
     }
+
+    cout << "\nTotal Resistance (Series + Parallel): " << totalResistance << endl;
+
+    // Read resistor data from file
+    fstream fileIn("temp.txt", ios::in);
+    string line;
+    getline(fileIn, line);
+    const int groupCount = stoi(line);
+    vector<int> parallelCounts;
+
+    for (int i = 0; i < groupCount; i++) {
+        Data2 data;
+        getline(fileIn, line);
+        stringstream ss(line);
+        string word;
+        int resistorCount = 0;
+
+        while (getline(ss, word, ',')) {
+            data.resinpar2.push_back(stof(word));
+            resistorCount++;
+        }
+
+        parallelCounts.push_back(resistorCount);
+        resistorGroups.push_back(data);
+    }
+
+    // Get voltage input and compute total current
     float voltage;
     cout << "\nEnter voltage:\t";
     cin >> voltage;
-    float netcurr = voltage / netres;
+
+    float netCurrent = voltage / totalResistance;
+
+    // Compute current through each resistor
     vector<Data3> currents;
-    for (int i = 0; i < con1; i++)
-    {
-        Data3 data3;
-        float tempsum = 0.0;
-        for (int j = 0; j < parcount[i]; j++)
-        {
-            tempsum += reci(resinser[i].resinpar2[j]);
-        }
-        for (int k = 0; k < parcount[i]; k++)
-        {
-            float temp2 = (netcurr * reci(tempsum)) / (resinser[i].resinpar2[k]);
-            data3.current23.push_back(temp2);
-        }
-        currents.push_back(data3);
+    for (int i = 0; i < groupCount; i++) {
+        Data3 currentGroup;
+        float sumReciprocal = 0.0f;
+
+        for (float resistance : resistorGroups[i].resinpar2)
+            sumReciprocal += reci(resistance);
+
+        for (float resistance : resistorGroups[i].resinpar2)
+            currentGroup.current23.push_back((netCurrent * reci(sumReciprocal)) / resistance);
+
+        currents.push_back(currentGroup);
     }
-    vector<Data4> pds;
+
+    // Compute potential difference and power for each resistor
+    vector<Data4> voltDrops;
     vector<Data5> powers;
-    for (int i = 0; i < con1; i++)
-    {
-        Data4 data4;
-        Data5 data5;
-        for (int j = 0; j < parcount[i]; j++)
-        {
-            float temp = (resinser[i].resinpar2[j]) * (currents[i].current23[j]);
-            data4.pds12.push_back(temp);
-            temp *= (currents[i].current23[j]);
-            data5.power1234.push_back(temp);
-        }
-        pds.push_back(data4);
-        powers.push_back(data5);
-    }
-    int totnum = 0;
-    for (int i = 0; i < con1; i++)
-    {
-        totnum += parcount[i];
-    }
-    fflush(stdout);
-    system("cls");
-    system("cls");
-    system("cls");
-    int abc = 0;
-    for (int i = 0; i < con1; i++)
-    {
 
-        for (int j = 0; j < parcount[i]; j++)
-        {
-            cout << "Resistor: " << abc + 1 << " details\n";
-            cout << "Resistance: " << resinser[i].resinpar2[j] << endl;
-            cout << "Current through it: " << currents[i].current23[j] << endl;
-            cout << "Potential difference across it: " << pds[i].pds12[j] << endl;
-            cout << "Power consumed by it: " << powers[i].power1234[j] << endl;
-            abc++;
+    for (int i = 0; i < groupCount; i++) {
+        Data4 vGroup;
+        Data5 pGroup;
+
+        for (size_t j = 0; j < resistorGroups[i].resinpar2.size(); j++) {
+            float voltageDrop = resistorGroups[i].resinpar2[j] * currents[i].current23[j];
+            vGroup.pds12.push_back(voltageDrop);
+            pGroup.power1234.push_back(voltageDrop * currents[i].current23[j]);
+        }
+
+        voltDrops.push_back(vGroup);
+        powers.push_back(pGroup);
+    }
+
+    system("cls");
+
+    // Display all resistor details
+    int counter = 0;
+    for (int i = 0; i < groupCount; i++) {
+        for (int j = 0; j < parallelCounts[i]; j++) {
+            cout << "\nResistor " << counter + 1 << " details:\n";
+            cout << "Resistance: " << resistorGroups[i].resinpar2[j] << " Ohm\n";
+            cout << "Current: " << currents[i].current23[j] << " A\n";
+            cout << "Voltage Drop: " << voltDrops[i].pds12[j] << " V\n";
+            cout << "Power: " << powers[i].power1234[j] << " W\n";
+            counter++;
         }
     }
-    float netpower = (netcurr * netcurr) * netres;
-    cout << "Net Resistance: " << netres << endl;
-    cout << "Net Current: " << netcurr << endl;
-    cout << "Net Voltage: " << voltage << endl;
-    cout << "Net Power consumed: " << netpower << endl;
-    vector<string> reslis;
-    vector<string> currlis;
-    vector<string> vollis;
-    vector<string> powlis;
-    vector <string> sreslis;
-    vector<string> scurrlis;
-    vector<string> svollis;
-    vector<string> spowlis;
-    float vtemp = 0.f, itemp = 0.f;
-    abc = 0;
-    for (int i = 0; i < con1; i++)
-    {
-        vtemp = 0.f;
-        itemp = 0.f;
-        for (int j = 0; j < parcount[i]; j++)
-        {
-            vtemp = pds[i].pds12[j];
-            itemp += currents[i].current23[j];
-            reslis.push_back(to_string(resinser[i].resinpar2[j]));
-            currlis.push_back(to_string(currents[i].current23[j]));
-            vollis.push_back(to_string(pds[i].pds12[j]));
-            powlis.push_back(to_string(powers[i].power1234[j]));
-            abc++;
+
+    float totalPower = (netCurrent * netCurrent) * totalResistance;
+    cout << "\nNet Resistance: " << totalResistance << " Ohm"
+        << "\nNet Current: " << netCurrent << " A"
+        << "\nNet Voltage: " << voltage << " V"
+        << "\nNet Power: " << totalPower << " W\n";
+
+    // Prepare data for visualization
+    vector<string> resList, curList, volList, powList;
+    vector<string> sResList, sCurList, sVolList, sPowList;
+
+    for (int i = 0; i < groupCount; i++) {
+        float groupVoltage = 0.f;
+        float groupCurrent = 0.f;
+
+        for (int j = 0; j < parallelCounts[i]; j++) {
+            groupVoltage = voltDrops[i].pds12[j];
+            groupCurrent += currents[i].current23[j];
+
+            resList.push_back(to_string(resistorGroups[i].resinpar2[j]));
+            curList.push_back(to_string(currents[i].current23[j]));
+            volList.push_back(to_string(voltDrops[i].pds12[j]));
+            powList.push_back(to_string(powers[i].power1234[j]));
         }
-        sreslis.push_back(to_string(vtemp / itemp));
-        scurrlis.push_back(to_string(itemp));
-        svollis.push_back(to_string(vtemp));
-        spowlis.push_back(to_string(vtemp * itemp));
+
+        sResList.push_back(to_string(groupVoltage / groupCurrent));
+        sCurList.push_back(to_string(groupCurrent));
+        sVolList.push_back(to_string(groupVoltage));
+        sPowList.push_back(to_string(groupVoltage * groupCurrent));
     }
+
     system("pause");
-    Nodes nodes(reslis,currlis,vollis,powlis,netres,netcurr,voltage,netpower,sreslis,scurrlis,svollis,spowlis);
-    //game loop
-    while (nodes.running())
-    {
-        //Update
+
+    // Launch visualization
+    Nodes nodes(
+        resList, curList, volList, powList,
+        totalResistance, netCurrent, voltage, totalPower,
+        sResList, sCurList, sVolList, sPowList
+    );
+
+    // Visualization loop
+    while (nodes.running()) {
         nodes.update();
-        //Render
         nodes.render();
-
-
-
     }
+
     return 0;
 }

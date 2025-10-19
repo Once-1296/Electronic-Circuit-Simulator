@@ -58,7 +58,7 @@ void Nodes::initText()
 {
     this->uiText.setFont(this->font);
     this->uiText.setCharacterSize(15);
-    this->uiText.setFillColor(sf::Color::Blue);
+    this->uiText.setFillColor(sf::Color::Yellow);
     this->uiText.setString("NONE");
 }
 
