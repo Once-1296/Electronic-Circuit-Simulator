@@ -98,7 +98,7 @@ No installation or configuration needed — everything is self-contained.
 ## 🧭 Credits
 
 Developed by **Once-1296**  
-Licensed under the [MIT License](../LICENSE.md)
+Licensed under the [MIT License](LICENSE.md)
 
 ---
 
