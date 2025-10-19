@@ -9,7 +9,7 @@ It demonstrates how to simulate and render components of an electronic circuit â
 - Easy-to-run Windows executable
 
 ### How to Run
-Download the ZIP from the releases section, extract, and run the `.exe` file.
+Download the ZIP from the main directory, extract, and run the `.exe` file.
 
 ### Documentation
 Full project documentation is available at:  
